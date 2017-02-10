@@ -1,0 +1,63 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: Ansible Tower LATAM Red Hat Forum 2016
+  hosts: localhost
+  connection: local
+  vars:
+     openshift_master: https://openshift.example.com:8443
+     openshift_domain: example.com
+     openshift_domain_cloudapps: cloudapps.{{ openshift_domain }}
+     username: demo
+     password: r3dh4t1!
+     ansibletower_namespace: ansible-tower
+     ansibletower_dockerimage: jbla/ansible-tower
+  tasks: 
+     - name: Delete any previously existing serviceaccounts
+       command: oc delete serviceaccount/satower --namespace {{ ansibletower_namespace }}
+       ignore_errors: True
+       tags:
+          - create
+          - cleanup
+ 
+     - name: Delete any previously existing namespaces 
+       command: oc delete project {{ ansibletower_namespace }}
+       ignore_errors: True
+       tags: 
+          - create
+          - cleanup
+
+     - name: Create a Project{{ ':' }} {{ ansibletower_namespace }} 
+       command: oadm new-project {{ ansibletower_namespace }} --display-name="Ansible Tower{{ ':' }} LATAM Red Hat Forum 2016" --admin={{ username }}
+       register: create_namespace
+       until: create_namespace.rc == 0
+       retries: 10
+       delay: 10
+       tags: create
+
+     - name: Create a Service Account to relax security permissions
+       command: oc create serviceaccount satower --namespace {{ ansibletower_namespace }}
+       tags: create
+   
+     - name: Allow this pod to run in a relax Security Context
+       command: oadm policy add-scc-to-user anyuid --serviceaccount satower --namespace {{ ansibletower_namespace }}
+       tags: create
+
+     - name: Allow this pod to run in a Privileged Security Context
+       command: oadm policy add-scc-to-user privileged system:serviceaccount:{{ ansibletower_namespace }}:satower
+       tags: create
+
+     - name: Create the application based on a Docker Image {{ ansibletower_dockerimage }}
+       command: oc new-app --name=tower --docker-image={{ ansibletower_dockerimage }} --namespace {{ ansibletower_namespace }}
+       tags: create 
+
+     - name: Patch the DeploymentConfig to allow Privileged Containers
+       command: oc patch deploymentconfig/tower --patch '{"spec"{{ ':' }}{"template"{{ ':' }}{"spec"{{ ':' }} {"containers"{{ ':' }} [{"name"{{ ':' }}"tower","securityContext"{{ ':' }} {"privileged"{{ ':' }} true}} ],"serviceAccountName"{{ ':' }}"satower"}}}}' --namespace {{ ansibletower_namespace }}
+       tags: create
+
+     - name: Patch the DeploymentConfig to avoid always download the image
+       command: oc patch deploymentconfig/tower --patch '{"spec"{{ ':' }}{"template"{{ ':' }}{"spec"{{ ':' }} {"containers"{{ ':' }} [{"name"{{ ':' }}"tower", "imagePullPolicy"{{ ':' }}"IfNotPresent"}]}}}}' --namespace {{ ansibletower_namespace }}
+       tags: create
+
+     - name: Create a friendly route tower.{{ openshift_domain_cloudapps }}
+       command: oc expose service/tower --hostname=tower.{{ openshift_domain_cloudapps }} --namespace {{ ansibletower_namespace }}
+       tags: create
