@@ -61,3 +61,7 @@
      - name: Create a friendly route tower.{{ openshift_domain_cloudapps }}
        command: oc expose service/tower --hostname=tower.{{ openshift_domain_cloudapps }} --namespace {{ ansibletower_namespace }}
        tags: create
+
+     - name: Create a Patch to Router, so it allowed TLS Passthrough
+       command: oc patch route/tower --patch='{"spec"{{ ':' }}{"tls"{{ ':' }}{"termination"{{ ':' }} "passthrough"}}}' --namespace {{ ansibletower_namespace }}
+       tags: create
