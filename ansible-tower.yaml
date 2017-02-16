@@ -10,7 +10,7 @@
      username: demo
      password: r3dh4t1!
      ansibletower_namespace: ansible-tower
-     ansibletower_dockerimage: jbla/ansible-tower
+     ansibletower_dockerimage: rcalvaga/rhel7_ansible_tower
   tasks: 
      - name: Delete any previously existing serviceaccounts
        command: oc delete serviceaccount/satower --namespace {{ ansibletower_namespace }}
@@ -48,7 +48,11 @@
 
      - name: Create the application based on a Docker Image {{ ansibletower_dockerimage }}
        command: oc new-app --name=tower --docker-image={{ ansibletower_dockerimage }} --namespace {{ ansibletower_namespace }}
-       tags: create 
+       tags: create
+
+     - name: Create the service for this container on port 443
+       command: oc expose deploymentconfig/tower --port=443 
+       tags: create
 
      - name: Patch the DeploymentConfig to allow Privileged Containers
        command: oc patch deploymentconfig/tower --patch '{"spec"{{ ':' }}{"template"{{ ':' }}{"spec"{{ ':' }} {"containers"{{ ':' }} [{"name"{{ ':' }}"tower","securityContext"{{ ':' }} {"privileged"{{ ':' }} true}} ],"serviceAccountName"{{ ':' }}"satower"}}}}' --namespace {{ ansibletower_namespace }}
