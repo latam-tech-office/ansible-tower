@@ -1,6 +1,6 @@
 #!/usr/bin/env ansible-playbook
 ---
-- name: Ansible Tower LATAM Red Hat Forum 2016
+- name: Ansible Tower{{ ':' }} LATAM Red Hat Forum 2016
   hosts: localhost
   connection: local
   vars:
