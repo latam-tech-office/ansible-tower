@@ -51,7 +51,7 @@
        tags: create
 
      - name: Create the service for this container on port 443
-       command: oc expose deploymentconfig/tower --port=443 
+       command: oc expose deploymentconfig/tower --port=443 --namespace {{ ansibletower_namespace }}
        tags: create
 
      - name: Patch the DeploymentConfig to allow Privileged Containers
