@@ -11,6 +11,9 @@
      password: r3dh4t1!
      ansibletower_namespace: ansible-tower
      ansibletower_dockerimage: rcalvaga/rhel7_ansible_tower
+     tower_url: "https://tower.cloudapps.{{ openshift_domain }}"
+     tower_user: "admin" 
+     tower_password: "Redhat1!"
   tasks: 
      - name: Delete any previously existing serviceaccounts
        command: oc delete serviceaccount/satower --namespace {{ ansibletower_namespace }}
@@ -69,3 +72,250 @@
      - name: Create a Patch to Router, so it allowed TLS Passthrough
        command: oc patch route/tower --patch='{"spec"{{ ':' }}{"tls"{{ ':' }}{"termination"{{ ':' }} "passthrough"}}}' --namespace {{ ansibletower_namespace }}
        tags: create
+
+     - name: Adding forumuser to Ansible Tower
+       uri: 
+         method: POST 
+         body_format: json 
+         HEADER_Content-Type: application/json
+         validate_certs: no
+         return_content: yes
+         url: "{{ tower_url }}/api/v1/users/"  
+         user: "{{ tower_user }}"
+         password: "{{ tower_password }}" 
+         force_basic_auth: yes 
+         body: '{"username": "forumuser","first_name": "Forum","last_name": "User","email": "forumuser@rhtechofficelatam.com","is_superuser": false,"is_system_auditor": false,"password": "Redhat1!"}'
+       register: json_result
+       failed_when: json_result.status != 201
+       tags: 
+          - install
+          - configtower
+          - createuserstower
+
+    - name: Adding forumadmin to Ansible Tower
+      uri:
+        method: POST
+        body_format: json
+        HEADER_Content-Type: application/json
+        validate_certs: no
+        return_content: yes
+        url: "{{ tower_url }}/api/v1/users/"
+        user: "{{ tower_user }}"
+        password: "{{ tower_password }}"
+        force_basic_auth: yes
+        body: '{"username": "forumadmin","first_name": "Forum","last_name": "Admin","email": "forumadmin@rhtechofficelatam.com","is_superuser": true,"is_system_auditor": false,"password": "Redhat1!"}'
+      register: json_result
+      failed_when: json_result.status != 201
+      tags:
+          - install
+          - configtower
+          - createuserstower
+
+   - name: Adding forumauditor to Ansible Tower
+     uri:
+       method: POST
+       body_format: json
+       HEADER_Content-Type: application/json
+       validate_certs: no
+       return_content: yes
+       url: "{{ tower_url }}/api/v1/users/"
+       user: "{{ tower_user }}"
+       password: "{{ tower_password }}"
+       force_basic_auth: yes
+       body: '{"username": "forumauditor","first_name": "Forum","last_name": "Auditor","email": "forumauditor@rhtechofficelatam.com","is_superuser": false,"is_system_auditor": true,"password": "Redhat1!"}'
+     register: json_result
+     failed_when: json_result.status != 201
+     tags:
+          - install
+          - configtower
+          - createuserstower
+
+   - name: Creating OpenShift Enterprise 3 Project within Ansible Tower
+     uri:
+       method: POST
+       body_format: json
+       HEADER_Content-Type: application/json
+       validate_certs: no
+       return_content: yes
+       url: "{{ tower_url }}/api/v1/projects/"
+       user: "{{ tower_user }}"
+       password: "{{ tower_password }}"
+       force_basic_auth: yes
+       body: '{"name": "OpenShift Enterprise 3 Project","description": "Project for Automating OpenShift Enterprise 3","local_path": "","scm_type": "git","scm_url": "https://github.com/rcalvaga/ansible-rh-forum-latam","scm_branch": "","scm_clean": true,"scm_delete_on_update": true,"credential": null,"organization": 1,"scm_update_on_launch": true,"scm_update_cache_timeout": 0}'
+     register: json_result
+     failed_when: json_result.status != 201
+     tags:
+          - install
+          - configtower
+          - createprojectstower
+
+   - name: Creating Red Hat Forum LATAM Team within Ansible Tower
+     uri:
+       method: POST
+       body_format: json
+       HEADER_Content-Type: application/json
+       validate_certs: no
+       return_content: yes
+       url: "{{ tower_url }}/api/v1/teams/"
+       user: "{{ tower_user }}"
+       password: "{{ tower_password }}"
+       force_basic_auth: yes
+       body: '{"name": "Red Hat Forum LATAM Team","description": "Red Hat Forum LATAM Team","organization": 1}'
+     register: json_result
+     failed_when: json_result.status != 201
+     tags:
+          - install
+          - configtower
+          - createteamstower
+
+   - name: Creating OpenShift Credentials within Ansible Tower
+     uri:
+       method: POST
+       body_format: json
+       HEADER_Content-Type: application/json
+       validate_certs: no
+       return_content: yes
+       url: "{{ tower_url }}/api/v1/credentials/"
+       user: "{{ tower_user }}"
+       password: "{{ tower_password }}"
+       force_basic_auth: yes
+       body: '{"name": "OpenShift Credentials","description": "OpenShift Credentials","kind": "ssh","host": "","username": "root","password": "Redhat1!","security_token": "","project": "","domain": "","ssh_key_data": "","ssh_key_unlock": "","organization": 1,"become_method": "","become_username": "","become_password": "","vault_password": "","subscription": "","tenant": "","secret": "","client": "","authorize": false,"authorize_password": "","user": null,"team": null}'
+     register: json_result
+     failed_when: json_result.status != 201
+     tags:
+          - install
+          - configtower
+          - createcredentialstower
+
+   - name: Creating OpenShift Inventory within Ansible Tower
+     uri:
+       method: POST
+       body_format: json
+       HEADER_Content-Type: application/json
+       validate_certs: no
+       return_content: yes
+       url: "{{ tower_url }}/api/v1/inventories/"
+       user: "{{ tower_user }}"
+       password: "{{ tower_password }}"
+       force_basic_auth: yes
+       body: '{"name": "OpenShift Inventory","description": "OpenShift Inventory","organization": 1,"variables": "---"}'
+     register: json_result
+     failed_when: json_result.status != 201
+     tags:
+          - install
+          - configtower
+          - createinventoriestower
+
+   - name: Creating master-group within Ansible Tower
+     uri:
+       method: POST
+       body_format: json
+       HEADER_Content-Type: application/json
+       validate_certs: no
+       return_content: yes
+       url: "{{ tower_url }}/api/v1/groups/"
+       user: "{{ tower_user }}"
+       password: "{{ tower_password }}"
+       force_basic_auth: yes
+       body: '{"name": "master-group","description": "Master group of OpenShift","inventory": 2,"variables": ""}'
+     register: json_result
+     failed_when: json_result.status != 201
+     tags:
+          - install
+          - configtower
+          - creategroupstower
+
+   - name: Creating nodes-group within Ansible Tower
+     uri:
+       method: POST
+       body_format: json
+       HEADER_Content-Type: application/json
+       validate_certs: no
+       return_content: yes
+       url: "{{ tower_url }}/api/v1/groups/"
+       user: "{{ tower_user }}"
+       password: "{{ tower_password }}"
+       force_basic_auth: yes
+       body: '{"name": "nodes-group","description": "Nodes group of OpenShift","inventory": 2,"variables": ""}'
+     register: json_result
+     failed_when: json_result.status != 201
+     tags:
+          - install
+          - configtower
+          - creategroupstower
+
+   - name: Creating master.latam.forum.redhat.com Host within Ansible Tower
+     uri:
+       method: POST
+       body_format: json
+       HEADER_Content-Type: application/json
+       validate_certs: no
+       return_content: yes
+       url: "{{ tower_url }}/api/v1/hosts/"
+       user: "{{ tower_user }}"
+       password: "{{ tower_password }}"
+       force_basic_auth: yes
+       body: '{"name": "master.latam.forum.redhat.com","description": "Master Server of OpenShift","inventory": 2,"enabled": true,"instance_id": "","variables": ""}'
+     register: json_result
+     failed_when: json_result.status != 201
+     tags:
+          - install
+          - configtower
+          - createhoststower
+
+   - name: Creating node1.latam.forum.redhat.com Host within Ansible Tower
+     uri:
+       method: POST
+       body_format: json
+       HEADER_Content-Type: application/json
+       validate_certs: no
+       return_content: yes
+       url: "{{ tower_url }}/api/v1/hosts/"
+       user: "{{ tower_user }}"
+       password: "{{ tower_password }}"
+       force_basic_auth: yes
+       body: '{"name": "node1.latam.forum.redhat.com","description": "Node1 Server of OpenShift","inventory": 2,"enabled": true,"instance_id": "","variables": ""}'
+     register: json_result
+     failed_when: json_result.status != 201
+     tags:
+          - install
+          - configtower
+          - createhoststower
+
+   - name: Creating node2.latam.forum.redhat.com Host within Ansible Tower
+     uri:
+       method: POST
+       body_format: json
+       HEADER_Content-Type: application/json
+       validate_certs: no
+       return_content: yes
+       url: "{{ tower_url }}/api/v1/hosts/"
+       user: "{{ tower_user }}"
+       password: "{{ tower_password }}"
+       force_basic_auth: yes
+       body: '{"name": "node2.latam.forum.redhat.com","description": "Node2 Server of OpenShift","inventory": 2,"enabled": true,"instance_id": "","variables": ""}'
+     register: json_result
+     failed_when: json_result.status != 201
+     tags:
+          - install
+          - configtower
+          - createhoststower
+
+   - name: Creating "Create a Project In OpenShift 3" Job Template within Ansible Tower
+     uri:
+       method: POST
+       body_format: json
+       HEADER_Content-Type: application/json
+       validate_certs: no
+       return_content: yes
+       url: "{{ tower_url }}/api/v1/job_templates/"
+       user: "{{ tower_user }}"
+       password: "{{ tower_password }}"
+       force_basic_auth: yes
+       body: '{"name": "Create a Project In OpenShift 3","description": "Create a Project In OpenShift 3 Enterprise","job_type": "run","inventory": 2,"project": 6,"playbook": "openshift-ansible/openshift-create-project-as-admin.yml","credential": 2,"cloud_credential": null,"network_credential": null,"forks": 0,"limit": "master.latam.forum.redhat.com","verbosity": 1,"extra_vars": "---\nproject_name:","job_tags": "","force_handlers": false,"skip_tags": "","start_at_task": "","host_config_key": "","ask_variables_on_launch": true,"ask_limit_on_launch": false,"ask_tags_on_launch": false,"ask_job_type_on_launch": false,"ask_inventory_on_launch": false,"ask_credential_on_launch": false,"survey_enabled": false,"become_enabled": false,"allow_simultaneous": false}'
+     register: json_result
+     failed_when: json_result.status != 201
+     tags:
+          - install
+          - configtower
+          - createjobtemplatestower
