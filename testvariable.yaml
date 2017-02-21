@@ -1,0 +1,20 @@
+- hosts: localhost
+  vars:
+     mykey: "One"
+  tasks: 
+     - stat: path=./license_b4451138a0004212ac8476cc275a08e9.txt
+       register: myvalue
+       when: '{{ "One" in mykey }}'
+
+     - set_fact: othervalue="One"
+       when: '{{ "One" in mykey }}'
+
+     - stat: path=./testtower.yaml
+       register: myvalue
+       when: '{{ "Two" in mykey }}'
+
+     - set_fact: othervalue="Two"
+       when: '{{ "Two" in mykey }}'
+
+     - debug: var=othervalue
+

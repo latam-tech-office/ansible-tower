@@ -1,0 +1,36 @@
+- hosts: localhost
+  connection: local
+  vars:
+    ansibletower_url: "https://tower.ansible-tower.svc.cluster.local:443"
+    ansibletower_api: "{{ ansibletower_url }}/api/v1"
+    username: admin
+    password: password
+  tasks: 
+#    - uri: method=POST url="https://tower.ansible-tower.svc.cluster.local:443/api/v1/authtoken/"
+#           HEADER_Origin="https://tower.ansible-tower.svc.cluster.local:443"
+#           HEADER_Accept-Encoding="gzip, deflate, br"
+#           HEADER_Accept-Language="en-US,en;q=0.8,pt;q=0.6" 
+#           HEADER_User-Agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36"
+#           HEADER_Content-Type="application/json;charset=UTF-8"
+#           HEADER_Accept="application/json, text/plain, */*"
+#           HEADER_Referer="https://tower.ansible-tower.svc.cluster.local:443/"
+#           HEADER_Cookie="2cc9d5f8d6d9d8c8e172c8fc59ced646=e28d3c35cfd34b2dff84d0974233131c; _pendo_accountId.e2ed58fe-4ba2-4798-4122-de648bbfe9f2=379e36ff99752c15cc4bd8add4fc9bd7331c0806; _pendo_meta.e2ed58fe-4ba2-4798-4122-de648bbfe9f2=237978134; lastPath=%22%2Flicense%22; _pendo_visitorId.e2ed58fe-4ba2-4798-4122-de648bbfe9f2=admin%40undefined; csrftoken=NmtplS3WAW5SY4v5dQ5RNna5FkA4OJdl; userLoggedIn=false; sessionExpired=false; current_user=%7B%7D"
+#           HEADER_Connection="keep-alive"
+#           validate_certs=no return_content=yes
+#           body="{\"username\"{{ ':' }}\"{{ username }}\",\"password\"{{ ':' }}\"{{ password }}\"}"
+#      register: ansibletower_login
+#      ignore_errors: Yes
+#
+  
+
+    - uri: method=POST body_format=json url="{{ ansibletower_api }}/authtoken/"
+           HEADER_Content-type="application/json" HEADER_Accept="application/json"
+           validate_certs=no return_content=yes
+           body="{\"username\"{{ ':' }}\"{{ username }}\",\"password\"{{ ':' }}\"{{ password }}\"}"
+      register: ansibletower_login
+
+    - debug: var=ansibletower_login
+
+    - debug: msg="My Token is {{ ansibletower_login.json.token }}"
+
+

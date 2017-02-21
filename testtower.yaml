@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+     - uri:
+         url: 'https://tower.ansible-tower.svc.cluster.local:443'
+         validate_certs: No
+       register: tower_wait
+       until: tower_wait.status == 200
+       retries: 60
+       delay: 10
+       tags: 
+          - install
+
+     - debug: var=tower_wait

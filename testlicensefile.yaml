@@ -1,0 +1,27 @@
+- hosts: localhost
+  connection: local
+  vars:
+    ansibletower_url: "https://tower.ansible-tower.svc.cluster.local:443"
+    ansibletower_api: "{{ ansibletower_url }}/api/v1"
+    username: admin
+    password: password
+    ansibletower_license_file: license_b4451138a0004212ac8476cc275a08e9.txt
+  tasks:
+    - debug: msg="{{ lookup('file', '{{ ansibletower_license_file }}') }}"
+
+    - set_fact: license_content={{ lookup('file', '{{ ansibletower_license_file }}') }}
+
+    - lineinfile: dest=./license_b4451138a0004212ac8476cc275a08e9.txt regexp="{" line="{\n    \"eula_accepted\"{{ ':' }} true,"
+      when: '"eula_accepted" not in license_content'
+
+    - lineinfile: dest=./{{ ansibletower_license_file }} line=
+
+    - uri: method=POST body_format=json url="{{ ansibletower_api }}/config/"
+           HEADER_Content-type="application/json" HEADER_Accept="application/json"
+           user={{ username }} password={{ password }} force_basic_auth=yes validate_certs=no return_content=yes
+           body="{{ lookup('file', '{{ ansibletower_license_file }}') }}"
+      register: ansibletower_license
+      ignore_errors: Yes
+
+    - debug: var=ansibletower_license
+
