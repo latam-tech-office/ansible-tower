@@ -313,7 +313,7 @@
             - configtower
             - creategroupstower
   
-     - name: Creating master.latam.forum.redhat.com Host within Ansible Tower
+     - name: Creating OSE Master Host within Ansible Tower
        uri:
          method: POST
          body_format: json
@@ -324,43 +324,7 @@
          user: "{{ ansibletower_username }}"
          password: "{{ ansibletower_password }}"
          force_basic_auth: yes
-         body: '{"name": "master.latam.forum.redhat.com","description": "Master Server of OpenShift","inventory": 1,"enabled": true,"instance_id": "","variables": ""}'
-         status_code: 201
-       tags:
-            - install
-            - configtower
-            - createhoststower
-
-     - name: Creating node1.latam.forum.redhat.com Host within Ansible Tower
-       uri:
-         method: POST
-         body_format: json
-         HEADER_Content-Type: application/json
-         validate_certs: no
-         return_content: yes
-         url: "{{ ansible_tower_url }}/api/v1/hosts/"
-         user: "{{ ansibletower_username }}"
-         password: "{{ ansibletower_password }}"
-         force_basic_auth: yes
-         body: '{"name": "node1.latam.forum.redhat.com","description": "Node1 Server of OpenShift","inventory": 1,"enabled": true,"instance_id": "","variables": ""}'
-         status_code: 201
-       tags:
-            - install
-            - configtower
-            - createhoststower
- 
-     - name: Creating node2.latam.forum.redhat.com Host within Ansible Tower
-       uri:
-         method: POST
-         body_format: json
-         HEADER_Content-Type: application/json
-         validate_certs: no
-         return_content: yes
-         url: "{{ ansible_tower_url }}/api/v1/hosts/"
-         user: "{{ ansibletower_username }}"
-         password: "{{ ansibletower_password }}"
-         force_basic_auth: yes
-         body: '{"name": "node2.latam.forum.redhat.com","description": "Node2 Server of OpenShift","inventory": 1,"enabled": true,"instance_id": "","variables": ""}'
+         body: '{"name": "openshift.default.svc.cluster.local","description": "Master Server of OpenShift","inventory": 1,"enabled": true,"instance_id": "","variables": ""}'
          status_code: 201
        tags:
             - install
