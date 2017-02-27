@@ -190,7 +190,7 @@
            - createuserstower
            
     
-     - name: Adding {{ username }} to Ansible Tower
+     - name: Adding "{{ username }}" to Ansible Tower
        uri:
          method: POST
          body_format: json
@@ -208,7 +208,7 @@
            - configtower
            - createuserstower
 
-    - name: Adding forumauditor to Ansible Tower
+     - name: Adding forumauditor to Ansible Tower
        uri:
          method: POST
          body_format: json
