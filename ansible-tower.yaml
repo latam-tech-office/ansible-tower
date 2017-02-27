@@ -375,6 +375,29 @@
             - configtower
             - createjobtemplatestower
          
+     
+     - name: Creating "Delete RH Forum 2016 Apps in OpenShift 3" Job Template within Ansible Tower
+       uri:
+         method: POST
+         body_format: json
+         HEADER_Content-Type: application/json
+         validate_certs: no
+         return_content: yes
+         url: "{{ ansible_tower_url }}/api/v1/job_templates/"
+         user: "{{ ansibletower_username }}"
+         password: "{{ ansibletower_password }}"
+         force_basic_auth: yes
+         body: '{"name": "Delete RH Forum 2016 Apps in OpenShift 3","description": "Delete RH Forum 2016 Project & Apps in OpenShift Enterprise 3","job_type": "run","inventory": 1,"project": 37,"playbook": "openshift-ansible/openshift-delete-forum-2016-application.yml","credential": 34,"cloud_credential": null,"network_credential": null,"forks": 0,"limit": "openshift.default.svc.cluster.local","verbosity": 1,"extra_vars": "---\nproject_name:","job_tags": "","force_handlers": false,"skip_tags": "","start_at_task": "","host_config_key": "","ask_variables_on_launch": true,"ask_limit_on_launch": false,"ask_tags_on_launch": false,"ask_job_type_on_launch": false,"ask_inventory_on_launch": false,"ask_credential_on_launch": false,"survey_enabled": false,"become_enabled": false,"allow_simultaneous": false}'
+         status_code: 201
+       register: result
+       until: result.status == 201
+       retries: 10
+       delay: 10
+       tags:
+            - install
+            - configtower
+            - createjobtemplatestower
+         
          
      - name: Creating "Delete a Project In OpenShift 3" Job Template within Ansible Tower
        uri:
