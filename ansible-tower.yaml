@@ -6,6 +6,8 @@
   vars:
      openshift_domain: example.com
      openshift_domain_cloudapps: cloudapps.{{ openshift_domain }}
+     openshift_master_username: root
+     openshift_master_password: r3dh4t1!
      username: demo
      password: r3dh4t1!
      ansibletower_namespace: ansible-tower
@@ -163,7 +165,7 @@
          force_basic_auth: yes 
          validate_certs: no 
          return_content: yes
-         body: '{"username": "forumuser","first_name": "Forum","last_name": "User","email": "forumuser@rhtechofficelatam.com","is_superuser": false,"is_system_auditor": false,"password": "{{ password }}"}'
+         body: '{"username": "forumuser","first_name": "Forum","last_name": "User","email": "forumuser@{{ openshift_domain }}","is_superuser": false,"is_system_auditor": false,"password": "{{ password }}"}'
        tags: 
           - install
           - configtower
@@ -180,14 +182,33 @@
          user: "{{ ansibletower_username }}"
          password: "{{ ansibletower_password }}"
          force_basic_auth: yes
-         body: '{"username": "forumadmin","first_name": "Forum","last_name": "Admin","email": "forumadmin@rhtechofficelatam.com","is_superuser": true,"is_system_auditor": false,"password": "Redhat1!"}'
+         body: '{"username": "forumadmin","first_name": "Forum","last_name": "Admin","email": "forumadmin@{{ openshift_domain }}","is_superuser": true,"is_system_auditor": false,"password": "{{ password }}"}'
+         status_code: 201
+       tags:
+           - install
+           - configtower
+           - createuserstower
+           
+    
+     - name: Adding "{{ username }}" to Ansible Tower
+       uri:
+         method: POST
+         body_format: json
+         HEADER_Content-Type: application/json
+         validate_certs: no
+         return_content: yes
+         url: "{{ ansible_tower_url }}/api/v1/users/"
+         user: "{{ ansibletower_username }}"
+         password: "{{ ansibletower_password }}"
+         force_basic_auth: yes
+         body: '{"username": "{{ username }}","first_name": "Demo","last_name": "User","email": "{{ username }}@{{ openshift_domain }}","is_superuser": true,"is_system_auditor": false,"password": "{{ password }}"}'
          status_code: 201
        tags:
            - install
            - configtower
            - createuserstower
 
-     - name: Adding forumauditor to Ansible Tower
+    - name: Adding forumauditor to Ansible Tower
        uri:
          method: POST
          body_format: json
@@ -199,7 +220,7 @@
          password: "{{ ansibletower_password }}"
          force_basic_auth: yes
          status_code: 201
-         body: '{"username": "forumauditor","first_name": "Forum","last_name": "Auditor","email": "forumauditor@rhtechofficelatam.com","is_superuser": false,"is_system_auditor": true,"password": "Redhat1!"}'
+         body: '{"username": "forumauditor","first_name": "Forum","last_name": "Auditor","email": "forumauditor@{{ openshift_domain }}","is_superuser": false,"is_system_auditor": true,"password": "{{ password }}"}'
        tags:
             - install
             - configtower
@@ -252,7 +273,7 @@
          user: "{{ ansibletower_username }}"
          password: "{{ ansibletower_password }}"
          force_basic_auth: yes
-         body: '{"name": "OpenShift Credentials","description": "OpenShift Credentials","kind": "ssh","host": "","username": "root","password": "Redhat1!","security_token": "","project": "","domain": "","ssh_key_data": "","ssh_key_unlock": "","organization": 1,"become_method": "","become_ansibletower_username": "","become_password": "","vault_password": "","subscription": "","tenant": "","secret": "","client": "","authorize": false,"authorize_password": "","user": null,"team": null}'
+         body: '{"name": "OpenShift Credentials","description": "OpenShift Credentials","kind": "ssh","host": "","username": "{{ openshift_master_username }}","password": "{{ openshift_master_password }}","security_token": "","project": "","domain": "","ssh_key_data": "","ssh_key_unlock": "","organization": 1,"become_method": "","become_ansibletower_username": "","become_password": "","vault_password": "","subscription": "","tenant": "","secret": "","client": "","authorize": false,"authorize_password": "","user": null,"team": null}'
          status_code: 201
        tags:
             - install
