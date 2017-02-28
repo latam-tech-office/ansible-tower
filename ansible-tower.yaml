@@ -73,8 +73,8 @@
        command: oc new-app --name=tower --docker-image={{ ansibletower_dockerimage }} --namespace {{ ansibletower_namespace }}
        tags: create
 
-     - name: Create the service for this container on port 443 (In case of Robert's Docker Image)
-       command: oc expose deploymentconfig/tower --port=443 --namespace {{ ansibletower_namespace }}
+     - name: Create the service for this container on ports 80,8080 and 443 (In case of Robert's Docker Image)
+       command: oc expose deploymentconfig/tower --port=443 --port=80 --port=8080 --namespace {{ ansibletower_namespace }}
        ignore_errors: Yes
        tags: create
 
