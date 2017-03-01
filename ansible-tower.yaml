@@ -6,6 +6,7 @@
   vars:
      openshift_domain: example.com
      openshift_domain_cloudapps: cloudapps.{{ openshift_domain }}
+     openshift_master_hostname: master.{{ openshift_domain }}
      openshift_master_username: root
      openshift_master_password: r3dh4t1!
      username: demo
@@ -334,7 +335,7 @@
             - configtower
             - creategroupstower
   
-     - name: Creating OSE Master Host within Ansible Tower
+     - name: Creating OSE Master "{{ openshift_master_hostname }}" Host within Ansible Tower
        uri:
          method: POST
          body_format: json
@@ -345,7 +346,7 @@
          user: "{{ ansibletower_username }}"
          password: "{{ ansibletower_password }}"
          force_basic_auth: yes
-         body: '{"name": "openshift.default.svc.cluster.local","description": "Master Server of OpenShift","inventory": 34,"enabled": true,"instance_id": "","variables": ""}'
+         body: '{"name": "{{ openshift_master_hostname }}","description": "Master Server of OpenShift","inventory": 34,"enabled": true,"instance_id": "","variables": ""}'
          status_code: 201
        tags:
             - install
@@ -363,7 +364,7 @@
          user: "{{ ansibletower_username }}"
          password: "{{ ansibletower_password }}"
          force_basic_auth: yes
-         body: '{"name": "Create a Project In OpenShift 3","description": "Create a Project In OpenShift 3 Enterprise","job_type": "run","inventory": 34,"project": 37,"playbook": "openshift-ansible/openshift-create-project-as-admin.yml","credential": 34,"cloud_credential": null,"network_credential": null,"forks": 0,"limit": "openshift.default.svc.cluster.local","verbosity": 1,"extra_vars": "---\nproject_name:","job_tags": "","force_handlers": false,"skip_tags": "","start_at_task": "","host_config_key": "","ask_variables_on_launch": true,"ask_limit_on_launch": false,"ask_tags_on_launch": false,"ask_job_type_on_launch": false,"ask_inventory_on_launch": false,"ask_credential_on_launch": false,"survey_enabled": false,"become_enabled": false,"allow_simultaneous": false}'
+         body: '{"name": "Create a Project In OpenShift 3","description": "Create a Project In OpenShift 3 Enterprise","job_type": "run","inventory": 34,"project": 37,"playbook": "openshift-ansible/openshift-create-project-as-admin.yml","credential": 34,"cloud_credential": null,"network_credential": null,"forks": 0,"limit": "{{ openshift_master_hostname }}","verbosity": 1,"extra_vars": "---\nproject_name:","job_tags": "","force_handlers": false,"skip_tags": "","start_at_task": "","host_config_key": "","ask_variables_on_launch": true,"ask_limit_on_launch": false,"ask_tags_on_launch": false,"ask_job_type_on_launch": false,"ask_inventory_on_launch": false,"ask_credential_on_launch": false,"survey_enabled": false,"become_enabled": false,"allow_simultaneous": false}'
          status_code: 201
        register: result
        until: result.status == 201
@@ -385,7 +386,7 @@
          user: "{{ ansibletower_username }}"
          password: "{{ ansibletower_password }}"
          force_basic_auth: yes
-         body: '{"name": "Create RH Forum 2016 Apps in OpenShift 3","description": "Create RH Forum 2016 Project & Apps in OpenShift Enterprise 3","job_type": "run","inventory": 34,"project": 37,"playbook": "openshift-ansible/openshift-create-forum-2016-application.yml","credential": 34,"cloud_credential": null,"network_credential": null,"forks": 0,"limit": "openshift.default.svc.cluster.local","verbosity": 1,"extra_vars": "---\nproject_name:\ndemo_environment:\ndemo_user:\napp_template:\ntooling_user:\ncicd_user:","job_tags": "","force_handlers": false,"skip_tags": "","start_at_task": "","host_config_key": "","ask_variables_on_launch": true,"ask_limit_on_launch": false,"ask_tags_on_launch": false,"ask_job_type_on_launch": false,"ask_inventory_on_launch": false,"ask_credential_on_launch": false,"survey_enabled": false,"become_enabled": false,"allow_simultaneous": false}'
+         body: '{"name": "Create RH Forum 2016 Apps in OpenShift 3","description": "Create RH Forum 2016 Project & Apps in OpenShift Enterprise 3","job_type": "run","inventory": 34,"project": 37,"playbook": "openshift-ansible/openshift-create-forum-2016-application.yml","credential": 34,"cloud_credential": null,"network_credential": null,"forks": 0,"limit": "{{ openshift_master_hostname }}","verbosity": 1,"extra_vars": "---\nproject_name:\ndemo_environment:\ndemo_user:\napp_template:\ntooling_user:\ncicd_user:","job_tags": "","force_handlers": false,"skip_tags": "","start_at_task": "","host_config_key": "","ask_variables_on_launch": true,"ask_limit_on_launch": false,"ask_tags_on_launch": false,"ask_job_type_on_launch": false,"ask_inventory_on_launch": false,"ask_credential_on_launch": false,"survey_enabled": false,"become_enabled": false,"allow_simultaneous": false}'
          status_code: 201
        register: result
        until: result.status == 201
@@ -408,7 +409,7 @@
          user: "{{ ansibletower_username }}"
          password: "{{ ansibletower_password }}"
          force_basic_auth: yes
-         body: '{"name": "Delete RH Forum 2016 Apps in OpenShift 3","description": "Delete RH Forum 2016 Project & Apps in OpenShift Enterprise 3","job_type": "run","inventory": 34,"project": 37,"playbook": "openshift-ansible/openshift-delete-forum-2016-application.yml","credential": 34,"cloud_credential": null,"network_credential": null,"forks": 0,"limit": "openshift.default.svc.cluster.local","verbosity": 1,"extra_vars": "---\nproject_name:","job_tags": "","force_handlers": false,"skip_tags": "","start_at_task": "","host_config_key": "","ask_variables_on_launch": true,"ask_limit_on_launch": false,"ask_tags_on_launch": false,"ask_job_type_on_launch": false,"ask_inventory_on_launch": false,"ask_credential_on_launch": false,"survey_enabled": false,"become_enabled": false,"allow_simultaneous": false}'
+         body: '{"name": "Delete RH Forum 2016 Apps in OpenShift 3","description": "Delete RH Forum 2016 Project & Apps in OpenShift Enterprise 3","job_type": "run","inventory": 34,"project": 37,"playbook": "openshift-ansible/openshift-delete-forum-2016-application.yml","credential": 34,"cloud_credential": null,"network_credential": null,"forks": 0,"limit": "{{ openshift_master_hostname }}","verbosity": 1,"extra_vars": "---\nproject_name:","job_tags": "","force_handlers": false,"skip_tags": "","start_at_task": "","host_config_key": "","ask_variables_on_launch": true,"ask_limit_on_launch": false,"ask_tags_on_launch": false,"ask_job_type_on_launch": false,"ask_inventory_on_launch": false,"ask_credential_on_launch": false,"survey_enabled": false,"become_enabled": false,"allow_simultaneous": false}'
          status_code: 201
        register: result
        until: result.status == 201
@@ -431,7 +432,7 @@
          user: "{{ ansibletower_username }}"
          password: "{{ ansibletower_password }}"
          force_basic_auth: yes
-         body: '{"name": "Delete a Project In OpenShift 3","description": "Delete a Project In OpenShift 3 Enterprise","job_type": "run","inventory": 34,"project": 37,"playbook": "openshift-ansible/openshift-delete-project-as-admin.yml","credential": 34,"cloud_credential": null,"network_credential": null,"forks": 0,"limit": "openshift.default.svc.cluster.local","verbosity": 1,"extra_vars": "---\nproject_name:","job_tags": "","force_handlers": false,"skip_tags": "","start_at_task": "","host_config_key": "","ask_variables_on_launch": true,"ask_limit_on_launch": false,"ask_tags_on_launch": false,"ask_job_type_on_launch": false,"ask_inventory_on_launch": false,"ask_credential_on_launch": false,"survey_enabled": false,"become_enabled": false,"allow_simultaneous": false}'
+         body: '{"name": "Delete a Project In OpenShift 3","description": "Delete a Project In OpenShift 3 Enterprise","job_type": "run","inventory": 34,"project": 37,"playbook": "openshift-ansible/openshift-delete-project-as-admin.yml","credential": 34,"cloud_credential": null,"network_credential": null,"forks": 0,"limit": "{{ openshift_master_hostname }}","verbosity": 1,"extra_vars": "---\nproject_name:","job_tags": "","force_handlers": false,"skip_tags": "","start_at_task": "","host_config_key": "","ask_variables_on_launch": true,"ask_limit_on_launch": false,"ask_tags_on_launch": false,"ask_job_type_on_launch": false,"ask_inventory_on_launch": false,"ask_credential_on_launch": false,"survey_enabled": false,"become_enabled": false,"allow_simultaneous": false}'
          status_code: 201
        register: result
        until: result.status == 201
